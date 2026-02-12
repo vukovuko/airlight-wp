@@ -7,13 +7,16 @@
 
 namespace Air_Light;
 
-// Check for genre filter
+// Get filter and pagination params
 $active_genre = isset( $_GET['genre'] ) ? sanitize_text_field( $_GET['genre'] ) : 'all';
+$paged = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+$per_page = 10;
 
 // Build query args
 $query_args = [
   'post_type'      => 'movie',
-  'posts_per_page' => -1,
+  'posts_per_page' => $per_page,
+  'paged'          => $paged,
 ];
 
 // Add taxonomy filter if not "all"
@@ -28,10 +31,12 @@ if ( $active_genre !== 'all' ) {
 }
 
 $movies_query = new \WP_Query( $query_args );
+$total_pages = $movies_query->max_num_pages;
 
-// If AJAX request, return only the movies list
+// If AJAX request, return only the movies list + pagination
 if ( ! empty( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) === 'xmlhttprequest' ) {
   render_movies_list( $movies_query );
+  render_pagination( $paged, $total_pages, $active_genre );
   exit;
 }
 
@@ -64,6 +69,7 @@ get_header();
 
     <movies-list class="movies-list">
       <?php render_movies_list( $movies_query ); ?>
+      <?php render_pagination( $paged, $total_pages, $active_genre ); ?>
     </movies-list>
 
   </div>
@@ -77,6 +83,7 @@ get_footer();
  */
 function render_movies_list( $query ) {
   if ( $query->have_posts() ) :
+    echo '<div class="movies-grid">';
     while ( $query->have_posts() ) : $query->the_post();
       $director = get_field( 'director' );
       $year     = get_field( 'year' );
@@ -93,10 +100,37 @@ function render_movies_list( $query ) {
       </article>
       <?php
     endwhile;
+    echo '</div>';
     wp_reset_postdata();
   else :
     ?>
     <p>No movies found.</p>
     <?php
   endif;
+}
+
+/**
+ * Render pagination HTML
+ */
+function render_pagination( $current_page, $total_pages, $genre ) {
+  if ( $total_pages <= 1 ) {
+    return;
+  }
+  ?>
+  <nav class="movies-pagination" aria-label="Movies pagination">
+    <?php if ( $current_page > 1 ) : ?>
+      <button class="page-btn" data-page="<?php echo $current_page - 1; ?>">&laquo; Prev</button>
+    <?php endif; ?>
+
+    <?php for ( $i = 1; $i <= $total_pages; $i++ ) : ?>
+      <button class="page-btn <?php echo $i === $current_page ? 'active' : ''; ?>" data-page="<?php echo $i; ?>">
+        <?php echo $i; ?>
+      </button>
+    <?php endfor; ?>
+
+    <?php if ( $current_page < $total_pages ) : ?>
+      <button class="page-btn" data-page="<?php echo $current_page + 1; ?>">Next &raquo;</button>
+    <?php endif; ?>
+  </nav>
+  <?php
 }

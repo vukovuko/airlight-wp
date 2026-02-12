@@ -1,33 +1,57 @@
 /**
  * Movies Filter Web Component
- * Fetches filtered HTML from server
+ * Fetches filtered HTML from server with pagination
  */
 export default class MoviesFilter extends HTMLElement {
   constructor() {
     super();
     this.buttons = null;
     this.moviesList = null;
+    this.currentGenre = 'all';
+    this.currentPage = 1;
   }
 
   connectedCallback() {
     this.buttons = this.querySelectorAll('.filter-btn');
     this.moviesList = document.querySelector('movies-list');
 
+    // Get initial state from URL
+    const params = new URLSearchParams(window.location.search);
+    this.currentGenre = params.get('genre') || 'all';
+    this.currentPage = parseInt(params.get('paged')) || 1;
+
     this.attachEventListeners();
   }
 
   attachEventListeners() {
+    // Filter buttons
     this.buttons.forEach(btn => {
       btn.addEventListener('click', () => this.handleFilterClick(btn));
     });
+
+    // Pagination buttons (delegated since they're dynamic)
+    this.moviesList.addEventListener('click', (e) => {
+      const pageBtn = e.target.closest('.page-btn');
+      if (pageBtn) {
+        this.handlePageClick(pageBtn);
+      }
+    });
   }
 
-  async handleFilterClick(btn) {
+  handleFilterClick(btn) {
     const genre = btn.dataset.genre;
+    this.currentGenre = genre;
+    this.currentPage = 1; // Reset to page 1 when filtering
 
     this.updateActiveButton(btn);
-    this.updateUrl(genre);
-    await this.fetchFilteredMovies(genre);
+    this.fetchMovies();
+  }
+
+  handlePageClick(btn) {
+    const page = parseInt(btn.dataset.page);
+    this.currentPage = page;
+
+    this.fetchMovies();
   }
 
   updateActiveButton(activeBtn) {
@@ -35,24 +59,77 @@ export default class MoviesFilter extends HTMLElement {
     activeBtn.classList.add('active');
   }
 
-  updateUrl(genre) {
+  updateUrl() {
     const url = new URL(window.location);
-    if (genre === 'all') {
+
+    if (this.currentGenre === 'all') {
       url.searchParams.delete('genre');
     } else {
-      url.searchParams.set('genre', genre);
+      url.searchParams.set('genre', this.currentGenre);
     }
+
+    if (this.currentPage === 1) {
+      url.searchParams.delete('paged');
+    } else {
+      url.searchParams.set('paged', this.currentPage);
+    }
+
     window.history.pushState({}, '', url);
   }
 
-  async fetchFilteredMovies(genre) {
-    const url = genre === 'all'
-      ? '/movies/'
-      : `/movies/?genre=${encodeURIComponent(genre)}`;
+  buildFetchUrl() {
+    const params = new URLSearchParams();
+
+    if (this.currentGenre !== 'all') {
+      params.set('genre', this.currentGenre);
+    }
+
+    if (this.currentPage > 1) {
+      params.set('paged', this.currentPage);
+    }
+
+    const queryString = params.toString();
+    return '/movies/' + (queryString ? '?' + queryString : '');
+  }
+
+  showSkeletons() {
+    const skeletonCount = 3;
+    const skeletons = Array(skeletonCount).fill(`
+      <article class="movie-item skeleton">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+      </article>
+    `).join('');
+
+    this.moviesList.innerHTML = `<div class="movies-grid">${skeletons}</div>`;
+  }
+
+  showError(message) {
+    this.moviesList.innerHTML = `
+      <div class="movies-error">
+        <p>${this.escapeHtml(message)}</p>
+        <button class="retry-btn">Try Again</button>
+      </div>
+    `;
+
+    this.moviesList.querySelector('.retry-btn')?.addEventListener('click', () => {
+      this.fetchMovies();
+    });
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async fetchMovies() {
+    const url = this.buildFetchUrl();
+
+    this.showSkeletons();
+    this.updateUrl();
 
     try {
-      this.moviesList.classList.add('loading');
-
       const response = await fetch(url, {
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
@@ -60,16 +137,17 @@ export default class MoviesFilter extends HTMLElement {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch movies');
+        throw new Error('Failed to load movies');
       }
 
       const html = await response.text();
       this.moviesList.innerHTML = html;
+
+      // Scroll to top of page
+      document.querySelector('.site-main')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
       console.error('Error fetching movies:', error);
-      this.moviesList.innerHTML = '<p>Error loading movies.</p>';
-    } finally {
-      this.moviesList.classList.remove('loading');
+      this.showError('Failed to load movies. Please try again.');
     }
   }
 }
