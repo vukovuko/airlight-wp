@@ -60,33 +60,35 @@ export default class MoviesFilter extends HTMLElement {
   }
 
   updateUrl() {
-    let path = '/movies/';
-
-    if (this.currentPage > 1) {
-      path += `page/${this.currentPage}/`;
-    }
+    const params = new URLSearchParams();
 
     if (this.currentGenre !== 'all') {
-      path += `?genre=${encodeURIComponent(this.currentGenre)}`;
+      params.set('genre', this.currentGenre);
     }
 
-    window.history.pushState({}, '', path);
+    if (this.currentPage > 1) {
+      params.set('paged', this.currentPage);
+    }
+
+    const queryString = params.toString();
+    const url = '/movies/' + (queryString ? '?' + queryString : '');
+
+    window.history.pushState({}, '', url);
   }
 
   buildFetchUrl() {
-    let url = '/movies/';
+    const params = new URLSearchParams();
 
-    // Add page using WordPress pretty permalink format
-    if (this.currentPage > 1) {
-      url += `page/${this.currentPage}/`;
-    }
-
-    // Add genre as query param
     if (this.currentGenre !== 'all') {
-      url += `?genre=${encodeURIComponent(this.currentGenre)}`;
+      params.set('genre', this.currentGenre);
     }
 
-    return url;
+    if (this.currentPage > 1) {
+      params.set('paged', this.currentPage);
+    }
+
+    const queryString = params.toString();
+    return '/movies/' + (queryString ? '?' + queryString : '');
   }
 
   showSkeletons() {

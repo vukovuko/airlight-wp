@@ -9,7 +9,8 @@ namespace Air_Light;
 
 // Get filter and pagination params
 $active_genre = isset( $_GET['genre'] ) ? sanitize_text_field( $_GET['genre'] ) : 'all';
-$paged = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
+// Check both query var (pretty permalinks) and $_GET (AJAX requests)
+$paged = get_query_var( 'paged' ) ? absint( get_query_var( 'paged' ) ) : ( isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1 );
 $per_page = 10;
 
 // Build query args
