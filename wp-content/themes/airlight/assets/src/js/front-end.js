@@ -19,6 +19,7 @@ import {
   navDesktop,
   navMobile,
 } from './modules/navigation';
+import './modules/movies-filter';
 // Define Javascript is active by changing the body class
 document.body.classList.remove('no-js');
 document.body.classList.add('js');
