@@ -9,7 +9,7 @@ namespace Air_Light;
 
 // Get filter and pagination params
 $active_genre = isset( $_GET['genre'] ) ? sanitize_text_field( $_GET['genre'] ) : 'all';
-$paged = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+$paged = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
 $per_page = 10;
 
 // Build query args
@@ -89,14 +89,14 @@ function render_movies_list( $query ) {
       $year     = get_field( 'year' );
       ?>
       <article <?php post_class( 'movie-item' ); ?>>
-        <h2>
-          <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-        </h2>
-        <p>
-          <?php if ( $year ) : ?><?php echo esc_html( $year ); ?><?php endif; ?>
-          <?php if ( $year && $director ) : ?> - <?php endif; ?>
-          <?php if ( $director ) : ?><?php echo esc_html( $director ); ?><?php endif; ?>
-        </p>
+        <a href="<?php the_permalink(); ?>" class="movie-link">
+          <h2><?php the_title(); ?></h2>
+          <p>
+            <?php if ( $year ) : ?><?php echo esc_html( $year ); ?><?php endif; ?>
+            <?php if ( $year && $director ) : ?> - <?php endif; ?>
+            <?php if ( $director ) : ?><?php echo esc_html( $director ); ?><?php endif; ?>
+          </p>
+        </a>
       </article>
       <?php
     endwhile;
@@ -122,8 +122,10 @@ function render_pagination( $current_page, $total_pages, $genre ) {
       <button class="page-btn" data-page="<?php echo $current_page - 1; ?>">&laquo; Prev</button>
     <?php endif; ?>
 
-    <?php for ( $i = 1; $i <= $total_pages; $i++ ) : ?>
-      <button class="page-btn <?php echo $i === $current_page ? 'active' : ''; ?>" data-page="<?php echo $i; ?>">
+    <?php for ( $i = 1; $i <= $total_pages; $i++ ) :
+      $is_active = ( (int) $i === (int) $current_page );
+    ?>
+      <button class="page-btn <?php echo $is_active ? 'active' : ''; ?>" data-page="<?php echo $i; ?>">
         <?php echo $i; ?>
       </button>
     <?php endfor; ?>
