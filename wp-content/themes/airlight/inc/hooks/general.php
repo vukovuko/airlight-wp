@@ -22,4 +22,9 @@ function widgets_init() {
     'before_title'  => '<h2 class="widget-title">',
     'after_title'   => '</h2>',
   ) );
+
 } // end widgets_init
+
+function modify_title( $title ) {
+  return $title . ' - Testing modification';
+}
