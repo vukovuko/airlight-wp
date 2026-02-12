@@ -1,20 +1,17 @@
 /**
  * Movies Filter Web Component
- * Enhances PHP-rendered movies with client-side filtering
+ * Fetches filtered HTML from server
  */
 export default class MoviesFilter extends HTMLElement {
   constructor() {
     super();
     this.buttons = null;
     this.moviesList = null;
-    this.movies = null;
-    this.activeGenre = 'all';
   }
 
   connectedCallback() {
     this.buttons = this.querySelectorAll('.filter-btn');
     this.moviesList = document.querySelector('movies-list');
-    this.movies = this.moviesList?.querySelectorAll('.movie-item');
 
     this.attachEventListeners();
   }
@@ -25,12 +22,12 @@ export default class MoviesFilter extends HTMLElement {
     });
   }
 
-  handleFilterClick(btn) {
+  async handleFilterClick(btn) {
     const genre = btn.dataset.genre;
-    this.activeGenre = genre;
 
     this.updateActiveButton(btn);
-    this.filterMovies(genre);
+    this.updateUrl(genre);
+    await this.fetchFilteredMovies(genre);
   }
 
   updateActiveButton(activeBtn) {
@@ -38,18 +35,42 @@ export default class MoviesFilter extends HTMLElement {
     activeBtn.classList.add('active');
   }
 
-  filterMovies(genre) {
-    if (!this.movies) return;
+  updateUrl(genre) {
+    const url = new URL(window.location);
+    if (genre === 'all') {
+      url.searchParams.delete('genre');
+    } else {
+      url.searchParams.set('genre', genre);
+    }
+    window.history.pushState({}, '', url);
+  }
 
-    this.movies.forEach(movie => {
-      const movieGenres = movie.dataset.genres?.split(',') || [];
+  async fetchFilteredMovies(genre) {
+    const url = genre === 'all'
+      ? '/movies/'
+      : `/movies/?genre=${encodeURIComponent(genre)}`;
 
-      if (genre === 'all' || movieGenres.includes(genre)) {
-        movie.style.display = '';
-      } else {
-        movie.style.display = 'none';
+    try {
+      this.moviesList.classList.add('loading');
+
+      const response = await fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch movies');
       }
-    });
+
+      const html = await response.text();
+      this.moviesList.innerHTML = html;
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+      this.moviesList.innerHTML = '<p>Error loading movies.</p>';
+    } finally {
+      this.moviesList.classList.remove('loading');
+    }
   }
 }
 
