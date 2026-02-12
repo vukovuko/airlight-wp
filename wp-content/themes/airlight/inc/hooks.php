@@ -25,7 +25,7 @@ namespace Air_Light;
 require get_theme_file_path( 'inc/hooks/general.php' );
 add_action( 'widgets_init', __NAMESPACE__ . '\widgets_init' );
 add_filter( 'the_title', __NAMESPACE__ . '\modify_title' );
-add_filter( 'document_title_parts', __NAMESPACE__ . '\modify_document_title' );
+add_action( 'admin_notices', __NAMESPACE__ . '\custom_admin_notice' );
 
 /**
  * Scripts and styles associated hooks

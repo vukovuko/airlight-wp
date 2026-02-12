@@ -28,3 +28,8 @@ function widgets_init() {
 function modify_title( $title ) {
   return $title . ' - Testing modification';
 }
+
+function custom_admin_notice() {
+  echo '<div class="notice notice-info"><p>ADMIN NOTICE</p></div>';
+}
+
