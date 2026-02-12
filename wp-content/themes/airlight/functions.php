@@ -199,6 +199,7 @@ require get_theme_file_path( '/inc/hooks.php' );
 require get_theme_file_path( '/inc/includes.php' );
 require get_theme_file_path( '/inc/template-tags.php' );
 require get_theme_file_path( '/inc/post-types/movies.php' );
+require get_theme_file_path( '/inc/taxonomies/genre.php' );
 
 // Run theme setup
 add_action( 'after_setup_theme', __NAMESPACE__ . '\theme_setup' );
