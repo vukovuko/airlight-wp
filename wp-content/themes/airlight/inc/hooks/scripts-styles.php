@@ -44,6 +44,14 @@ function enqueue_theme_scripts() {
     wp_enqueue_script( 'comment-reply' );
   }
 
+  // Custom script
+  wp_enqueue_script( 'custom',
+    get_theme_file_uri( 'assets/src/js/modules/custom.js' ),
+    [],
+    filemtime( get_theme_file_path( 'assets/src/js/modules/custom.js' ) ),
+    true
+  );
+
   wp_localize_script( 'scripts', 'air_light_screenReaderText', [
     'expand_for'      => get_default_localization( 'Open child menu for' ),
     'collapse_for'    => get_default_localization( 'Close child menu for' ),
