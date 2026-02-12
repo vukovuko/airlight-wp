@@ -1,0 +1,109 @@
+# WordPress core
+wp-config.php
+*.htaccess
+
+# ignore everything in the "wp-content" directory, except:
+# "mu-plugins" directory
+# "plugins" directory
+# "themes" directory
+wp-content/*
+!wp-content/mu-plugins/
+!wp-content/plugins/
+!wp-content/themes/
+
+# ignore log files
+*.log
+errors.log
+
+# ignore Editor files
+.idea
+.vscode
+wp-content/themes/*/index.sublime-workspace
+wp-content/themes/*/.sublime-gulp.cache
+*.swp
+*.swo
+
+# ignore theme compiled files and build artifacts
+wp-content/themes/*/assets/dist/
+wp-content/themes/*/.sass-cache
+wp-content/themes/*/.parcel-cache
+wp-content/themes/*/style.css
+wp-content/themes/*/style.css.map
+
+# ignore theme-specific files
+wp-content/themes/*/vendor/
+wp-content/themes/*/templates/
+wp-content/themes/*/content/
+wp-content/themes/*/move_out.sh
+wp-content/themes/*/move_in.sh
+wp-content/themes/*/theme_tests.sh
+wp-content/themes/*/bower_components/
+wp-content/themes/*/dandelion.yml
+wp-content/themes/*/html
+wp-content/themes/*/w3cErrors/
+wp-content/themes/*/blocks/*/node_modules
+
+# ignore node_modules
+wp-content/themes/*/node_modules
+node_modules/
+
+# ignore 'WPEngine large files'
+_wpeprivate
+wp-content/uploads
+wp-content/blogs.dir
+wp-content/upgrade
+wp-content/object-cache.php
+wp-content/mysql.sql
+wp-content/mu-plugins/mu-plugin.php
+wp-content/mu-plugins/slt-force-strong-passwords.php
+wp-content/mu-plugins/wpengine-common
+wp-content/mu-plugins/limit-login-attempts
+
+# Binary and media files
+*.hqx
+*.bin
+*.exe
+*.dll
+*.deb
+*.dmg
+*.iso
+*.img
+*.msi
+*.msp
+*.msm
+*.mid
+*.midi
+*.kar
+*.mp3
+*.ogg
+*.m4a
+*.ra
+*.3gpp
+*.3gp
+*.mp4
+*.mpeg
+*.mpg
+*.mov
+*.webm
+*.flv
+*.m4v
+*.mng
+*.asx
+*.asf
+*.wmv
+*.avi
+
+# Lando/Docker
+.profiler/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database exports
+*.sql
+*.sql.gz
+
+# Environment
+.env
+.env.local

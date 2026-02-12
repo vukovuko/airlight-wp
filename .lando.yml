@@ -1,0 +1,36 @@
+name: airlight
+
+recipe: wordpress
+
+proxy:
+    appserver:
+        - airlight.lndo.site
+    phpmyadmin:
+        - airlight-pma.lndo.site
+    mailhog:
+        - airlight-mailhog.lndo.site
+
+config:
+    xdebug: true
+    php: "8.3"
+
+services:
+    phpmyadmin:
+        type: phpmyadmin
+        hosts:
+            - database
+
+    appserver:
+        config:
+            php: .lando/php.ini
+        build:
+            - cd /app/wp-content/themes/airlight && composer install
+        overrides:
+            environment:
+                PHP_IDE_CONFIG: "serverName=airlight"
+
+    mailhog:
+        type: mailhog
+        portforward: false
+        hogfrom:
+            - appserver
