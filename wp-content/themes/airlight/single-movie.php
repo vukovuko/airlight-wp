@@ -18,10 +18,11 @@ $genre    = get_field( 'genre' );
 
 <main class="site-main">
   <article <?php post_class(); ?>>
+    <div class="post-inner">
 
-    <h1><?php the_title(); ?></h1>
+      <h1><?php the_title(); ?></h1>
 
-    <div class="movie-details">
+      <div class="movie-details">
       <?php if ( $director ) : ?>
         <p><strong>Director:</strong> <?php echo esc_html( $director ); ?></p>
       <?php endif; ?>
@@ -47,6 +48,7 @@ $genre    = get_field( 'genre' );
       <?php the_content(); ?>
     </div>
 
+    </div>
   </article>
 </main>
 
